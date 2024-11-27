@@ -1,6 +1,21 @@
 import { Request, Response } from 'express';
 import User from '../model/user.model';
+import { body } from 'express-validator';
+import { validateRequest } from '../middlewares/validation.middleware';
 
+// Middleware para processar os erros de validação
+export const validateRequest = (req: Request, res: Response, next: NextFunction): void => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        res.status(400).json({
+            status: 'error',
+            message: 'Dados inválidos',
+            errors: errors.array(),
+        });
+    } else {
+        next();
+    }
+};
 // Função para listar todos os usuários
 export const getAllUsers = async (req: Request, res: Response) => {
     try {

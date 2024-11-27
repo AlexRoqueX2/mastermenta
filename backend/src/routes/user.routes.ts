@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getAllUsers, getUsers, createUser, updateUser, deleteUser } from '../controllers/user.controller';
+import { getAllUsers, getUsers, createUser, updateUser, deleteUser, validateCreateUser} from '../controllers/user.controller';
 
 const router = Router();
 
@@ -11,6 +11,7 @@ router.get('/:id', getUsers);
 
 // Rota para criar um novo usuário
 router.post('/', createUser);
+router.post('/', validateCreateUser, createUser);
 
 // Rota para atualizar um usuário
 router.put('/:id', updateUser);
