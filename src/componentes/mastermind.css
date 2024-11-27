@@ -1,0 +1,93 @@
+.tabuleiro-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .tabuleiro {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    border-style: solid;
+    border-width: 5px 20px;
+    border-radius: 2px;
+    border-color: #000000;
+    background-color: #ffffff;
+  }
+  
+  .linha {
+    display: flex;
+    gap: 5px;
+    border-style: solid;
+    border-width: 5px;
+    border-radius: 2px;
+    width:fit-content;
+  }
+  
+  .caractere {
+    width: 30px;
+    height: 30px;
+    background-color: #ccc;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #000;
+    font-size: 16px;
+    font-weight: bold;
+  }
+/*
+  html {
+    height: 100%;
+    width: 100%;
+  }
+  
+  .fase{
+    background-color: #c7c7c7;
+    height: 75px;
+    width: 400px;
+    display: flex;
+    margin: 2px;
+  }
+  
+  .botao{
+    height: 100%;
+    width: 25%;
+    border-radius: 100%;
+    display: flex;
+  
+  }*/
+  /*antigo botao que mostraria as respostas , pra funcionar use os width: 20% */
+  /*
+  .botaor{
+    height: 20%;
+    width: 20%;
+    display: flex;
+  
+  }
+  
+  .console{
+    border-style: solid;
+    border-width: 20px 5px;
+    border-radius: 5px;
+    padding-top: 0px;
+    border-color: #919191;
+    background-color: #000000;
+    color: #00c200;
+    
+  }
+  
+  .caixaBotao{
+    border-style: solid;
+    border-width: 5px;
+    border-radius: 2px;
+    width:fit-content;
+    
+  }
+  .caixaJogo{
+    border-style: solid;
+    border-width: 5px 20px;
+    border-radius: 2px;
+    border-color: #000000;
+    background-color: #ffffff;
+  }
+  */

@@ -1,0 +1,55 @@
+.botoes-controle {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+  
+  .botoes-cores {
+    display: flex;
+    gap: 0.5rem;
+  }
+  
+  .botao-cor {
+    width: 40px;
+    height: 40px;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  
+  .botao-cor:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.5);
+  }
+  
+  .botao-cor:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+  
+  .botoes-acoes {
+    display: flex;
+    gap: 1rem;
+  }
+  
+  .botao-acao {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.2s, transform 0.2s;
+  }
+  
+  .botao-acao:hover {
+    background-color: #ddd;
+    transform: scale(1.05);
+  }
+  
+  .botao-acao:active {
+    background-color: #ccc;
+  }
+  
