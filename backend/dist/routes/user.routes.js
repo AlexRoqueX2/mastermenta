@@ -5,6 +5,8 @@ const user_controller_1 = require("../controllers/user.controller");
 const router = (0, express_1.Router)();
 // Rota para buscar todos os usuários
 router.get('/', user_controller_1.getAllUsers);
+// Rota para buscar um usuários por id
+router.get('/:id', user_controller_1.getUsers);
 // Rota para criar um novo usuário
 router.post('/', user_controller_1.createUser);
 // Rota para atualizar um usuário
