@@ -1,25 +1,18 @@
 import { Request, Response } from 'express';
 import User from '../model/user.model';
-import { body } from 'express-validator';
-import { validateRequest } from '../middlewares/validation.middleware';
 
-// Middleware para processar os erros de validação
-export const validateRequest = (req: Request, res: Response, next: NextFunction): void => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-        res.status(400).json({
-            status: 'error',
-            message: 'Dados inválidos',
-            errors: errors.array(),
-        });
-    } else {
-        next();
-    }
-};
-// Função para listar todos os usuários
+const crypto = require("crypto-js");
+const jwt = require("jsonwebtoken");
+
 export const getAllUsers = async (req: Request, res: Response) => {
+    if (!isUserAuthenticated(req.headers['authorization'])) {
+        res.status(401).json(buildErrorResponse('Usuario não autenticado'));
+        return;
+    }
+
     try {
-        const users = await User.find(); // Busca todos os usuários
+        const users = await User.find();
+
         res.status(200).json({
             status: 'success',
             message: 'Usuários buscados com sucesso',
@@ -36,6 +29,10 @@ export const getAllUsers = async (req: Request, res: Response) => {
 };
 
 export const getUsers = async (req: any, res: any) => {
+    if (!isUserAuthenticated(req.headers['authorization'])) {
+        res.status(401).json(buildErrorResponse('Usuario não autenticado'));
+    }
+
     try {
         const user = await User.findById(req.params.id);
         if (!user) {
@@ -60,47 +57,83 @@ export const getUsers = async (req: any, res: any) => {
     }
 };
 
-
-// Função para criar um novo usuário
-export const createUser = async (req: Request, res: Response) => {
+export const createUser = async (req: any, res: any) => {
     const { username, email, password } = req.body;
 
+    if (username?.length < 3) {
+        res.status(400).json(buildErrorResponse('O nome de usuário deve ter pelo menos 3 caracteres'));
+        return;
+    }
+
+    if (password?.length < 6) {
+        res.status(400).json(buildErrorResponse('A senha deve ter pelo menos 6 caracteres'));
+        return;
+    }
+
+    if (!email?.toLowerCase().match(/^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/)) {
+        res.status(400).json(buildErrorResponse('O email está inválido'));
+        return;
+    }
+
+    let existingUser = null;
     try {
-        const newUser = await User.create({ username, email, password });
+        existingUser = await User.findOne({ email });
+    } catch (error) {
+        res.status(400).json(buildErrorResponse('Erro ao criar usuário', error));
+        return;
+    }
+
+    if (existingUser) {
+        res.status(400).json(buildErrorResponse('Usuário já existe'));
+        return;
+    }
+
+    try {
+        const newUser = await User.create({ username, email, password: encryptPassword(password) });
         res.status(201).json({
             status: 'success',
             message: 'Usuário criado com sucesso',
             data: newUser,
         });
     } catch (error) {
-        res.status(400).json({
-            status: 'error',
-            message: 'Erro ao criar usuário',
-            data: null,
-            details: error,
-        });
+        res.status(400).json(buildErrorResponse('Erro ao criar usuário', error));
     }
 };
 
-
-// Função para atualizar um usuário
 export const updateUser = async (req: any, res: any) => {
+    if (!isUserAuthenticated(req.headers['authorization'])) {
+        res.status(401).json(buildErrorResponse('Usuario não autenticado'));
+        return;
+    }
+
     const { id } = req.params;
     const { username, email, password } = req.body;
+
+    if (username.length < 3) {
+        res.status(400).json(buildErrorResponse('O nome de usuário deve ter pelo menos 3 caracteres'));
+        return;
+    }
+
+    if (password.length < 6) {
+        res.status(400).json(buildErrorResponse('A senha deve ter pelo menos 6 caracteres'));
+        return;
+    }
+
+    if (!email?.toLowerCase().match(/^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/)) {
+        res.status(400).json(buildErrorResponse('O email está inválido'));
+        return;
+    }
 
     try {
         const updatedUser = await User.findByIdAndUpdate(
             id,
-            { username, email, password },
+            { username, email, password: encryptPassword(password) },
             { new: true, runValidators: true }
         );
         
         if (!updatedUser) {
-            return res.status(404).json({
-                status: 'error',
-                message: 'Usuário não encontrado',
-                data: null,
-            });
+            res.status(404).json(buildErrorResponse('Usuário não encontrado'));
+            return;
         }
 
         res.status(200).json({
@@ -109,29 +142,24 @@ export const updateUser = async (req: any, res: any) => {
             data: updatedUser,
         });
     } catch (error) {
-        res.status(400).json({
-            status: 'error',
-            message: 'Erro ao atualizar usuário',
-            data: null,
-            details: error,
-        });
+        res.status(400).json(buildErrorResponse('Erro ao atualizar usuário', error));
     }
 };
 
-
-// Função para excluir um usuário
 export const deleteUser = async (req: any, res: any) => {
+    if (!isUserAuthenticated(req.headers['authorization'])) {
+        res.status(401).json(buildErrorResponse('Usuario não autenticado'));
+        return;
+    }
+
     const { id } = req.params;
 
     try {
         const deletedUser = await User.findByIdAndDelete(id);
 
         if (!deletedUser) {
-            return res.status(404).json({
-                status: 'error',
-                message: 'Usuário não encontrado',
-                data: null,
-            });
+            res.status(404).json(buildErrorResponse('Usuário não encontrado'));
+            return;
         }
 
         res.status(200).json({
@@ -140,13 +168,76 @@ export const deleteUser = async (req: any, res: any) => {
             data: deletedUser,
         });
     } catch (error) {
-        res.status(400).json({
-            status: 'error',
-            message: 'Erro ao excluir usuário',
-            data: null,
-            details: error,
-        });
+        res.status(400).json(buildErrorResponse('Erro ao excluir usuário', error));
     }
 };
 
+export const loginUser = async (req: any, res: any) => {
+    const { email, password } = req.body;
 
+    if (!email || !password) {
+        res.status(400).json(buildErrorResponse('Email e senha obrigatórios'));
+        return;
+    }
+
+    try {
+        const user = await User.findOne({ email });
+
+        if (!user) {
+            res.status(404).json(buildErrorResponse('Usuário nao encontrado'));
+            return;
+        }
+
+        if (decriptPassword(user.password) !== password) {
+            res.status(401).json(buildErrorResponse('Senha incorreta'));
+            return;
+        }
+
+        jwt.sign(req.body, 'chave', (err: any, token: any) => {
+            if (err) {
+                buildErrorResponse('Erro ao logar usuário', err)
+                return;
+            }
+
+            res.status(200).json({
+                status: 'success',
+                message: 'Usuário logado com sucesso',
+                data: { token },
+            });
+        });
+
+    } catch (error) {
+        res.status(400).json(buildErrorResponse('Erro ao logar usuário', error));
+    }
+};
+
+function isUserAuthenticated(token?: string) {
+    if (!token) {
+        return false;
+    }
+
+    let authenticated = null;
+    jwt.verify(token, 'chave', (err: any) => {
+        authenticated = err === null ? false : true
+    });
+    
+    return authenticated;
+}
+
+function buildErrorResponse(message: string, error: any = null) {
+    return {
+        status: 'error',
+        message,
+        data: null,
+        details: error,
+    };
+}
+
+function encryptPassword(senha: string) {
+    return crypto.AES.encrypt(senha, 'segredo').toString()
+};
+
+function decriptPassword(senha: string) {
+    const bytes = crypto.AES.decrypt(senha, 'segredo');
+    return bytes.toString(crypto.enc.Utf8)
+};

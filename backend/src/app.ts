@@ -14,15 +14,15 @@ app.use(bodyParser.json());
 
 // Rota de teste
 app.get('/', (req, res) => {
-  res.send('Servidor funcionando!');
+    res.send('Servidor funcionando!');
 });
 
-app.use('/users', userRoutes); // Prefixo para as rotas de usuário
+app.use(userRoutes); // Prefixo para as rotas de usuário
 
 // Porta
-const PORT = 5000;
+const PORT = 8000;
 app.listen(PORT, () => {
-  console.log(`Servidor rodando na porta ${PORT}`);
+    console.log(`Servidor rodando na porta ${PORT}`);
 });
 
 mongoose
