@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from "react";
 import './mastermind.css';
-import { obterCores, gerarSenhaAleatoria } from "../../utils/logicaCores";
+import { gerarCores , gerarSenha } from "../../utils/logicaCores";
 import BotoesControle from "./BotoesControle";
-import { server } from "typescript";
 import { compararInput, checaVitoria } from "../../utils/logicaComparacao";
 
 interface MastermindProps {
@@ -16,8 +15,9 @@ const Mastermind: React.FC<MastermindProps> = ({ numCores, numLinhas, numTentati
   const [coresDisponiveis, setCoresDisponiveis] = useState<string[]>([]);
   const [senha, setSenha] = useState<string[]>([]);
   const [inputAtual, setInputAtual] = useState<string[]>([]);
+  const [pretas, setPretas] = useState<string[]>([]);
+  const [brancas, setBrancas] = useState<string[]>([]);
 
-  // Função para inicializar o tabuleiro
   const inicializarTabuleiro = () => {
     const novoTabuleiro: string[][] = [];
     for (let i = 0; i < numTentativas; i++) {
@@ -26,81 +26,47 @@ const Mastermind: React.FC<MastermindProps> = ({ numCores, numLinhas, numTentati
     setTabuleiro(novoTabuleiro);
   };
 
-  // Adiciona o input do jogador
   const adicionarInput = (cor: string) => {
     if (inputAtual.length < numLinhas) {
       setInputAtual([...inputAtual, cor]);
     }
   };
 
-  // Remove o último input
   const apagarInput = () => {
     setInputAtual(inputAtual.slice(0, -1));
   };
 
   const handleConfirmar = () => {
+    
     if (inputAtual.length !== numLinhas) {
       alert("Preencha todas as posições antes de confirmar!");
       return;
     }
   
-    // Comparar input atual com a senha
     const resultado = compararInput(inputAtual, senha);
-  
-    // Exibir resultados
-    alert(`Acertos:\nPretas: ${resultado.pretas}\nBrancas: ${resultado.brancas}`);
-  
-    // Atualizar o tabuleiro com a tentativa atual
+
+    setBrancas(resultado.brancas)
+    setPretas(resultado.pretas)
+
     const novoTabuleiro = [...tabuleiro];
     const linhaAtual = novoTabuleiro.findIndex((linha) => linha.every((valor) => valor === "0"));
     if (linhaAtual !== -1) {
       novoTabuleiro[linhaAtual] = [...inputAtual];
       setTabuleiro(novoTabuleiro);
-      setInputAtual([]); // Limpar o input atual para a próxima jogada
+      setInputAtual([]);
     }
   
-    // Verificar vitória
     if (checaVitoria(resultado.pretas)) {
       alert("Parabéns! Você acertou a senha!");
       return;
     }
   
-    // Verificar se as tentativas acabaram
     const tentativasRestantes = novoTabuleiro.filter((linha) => linha.includes("0")).length;
     if (tentativasRestantes === 0) {
       alert(`Game Over! A senha era: ${senha.join(", ")}`);
     }
   };
-  
-  /*
-  // Confirma o input atual
-  const confirmarInput = () => {
-    if (inputAtual.length === numLinhas) {
-        const novoTabuleiro = [...tabuleiro];
-        const linhaAtual = novoTabuleiro.findIndex((linha) =>
-          linha.every((valor) => valor === "") // Comparação com string vazia para espaços vazios
-        );
-        if (linhaAtual !== -1) {
-          novoTabuleiro[linhaAtual] = [...inputAtual];
-          setTabuleiro(novoTabuleiro);
-          setInputAtual([]); // Limpa o input atual para a próxima jogada
-        }
-      }
-  }; 
 
-  if (inputAtual.length === numLinhas) {
-  const novoTabuleiro = [...tabuleiro];
-  const linhaAtual = novoTabuleiro.findIndex((linha) =>
-    linha.every((valor) => valor === "") // Comparação com string vazia para espaços vazios
-  );
-  if (linhaAtual !== -1) {
-    novoTabuleiro[linhaAtual] = [...inputAtual];
-    setTabuleiro(novoTabuleiro);
-    setInputAtual([]); // Limpa o input atual para a próxima jogada
-  }
-} */
-
-  // Renderiza o tabuleiro
   const renderizarTabuleiro = () => {
     return tabuleiro.map((linha, index) => (
       <div key={index} className="linha">
@@ -119,15 +85,16 @@ const Mastermind: React.FC<MastermindProps> = ({ numCores, numLinhas, numTentati
 
   // Inicializa o tabuleiro ao montar o componente
   React.useEffect(() => {
+    
     inicializarTabuleiro();
     
   }, []);
 
   // Inicializa as cores e a senha
   useEffect(() => {
-    const cores = obterCores(numCores);
+    const cores = gerarCores(numCores);
     setCoresDisponiveis(cores);
-    const novaSenha = gerarSenhaAleatoria(cores, numLinhas);
+    const novaSenha = gerarSenha(numCores ,numLinhas);
     setSenha(novaSenha);
     inicializarTabuleiro();
     console.log("Senha gerada:", novaSenha); // Para debugging
@@ -142,11 +109,9 @@ const Mastermind: React.FC<MastermindProps> = ({ numCores, numLinhas, numTentati
 
   return (
     <div className="tabuleiro-container">
-      <h2>Mastermind</h2>
+      <h2>Mastermenta</h2>
       <p>Cores disponíveis: {coresDisponiveis.join(", ")}</p>
       <div className="tabuleiro">{renderizarTabuleiro()}</div>
-
-        {/* Componente de botões */}
         <BotoesControle
         coresDisponiveis={coresDisponiveis}
         onAdicionarInput={adicionarInput}
@@ -154,6 +119,8 @@ const Mastermind: React.FC<MastermindProps> = ({ numCores, numLinhas, numTentati
         onApagar={apagarInput}
         podeAdicionarMais={inputAtual.length < numLinhas}
       />
+      <p>acertou a posiçao e a cor: {pretas}</p>
+      <p>acertou a cor, porem errou a posiçao: {brancas}</p>
     </div>
   );
 };

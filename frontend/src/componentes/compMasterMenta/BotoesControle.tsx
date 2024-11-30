@@ -1,5 +1,6 @@
 import React from "react";
 import "./botoesControle.css";
+import {coresPadrao} from "./../../utils/logicaCores"
 
 interface BotoesControleProps {
   coresDisponiveis: string[]; // Lista de cores disponíveis
@@ -24,7 +25,7 @@ const BotoesControle: React.FC<BotoesControleProps> = ({
           <button
             key={index}
             className="botao-cor"
-            style={{ backgroundColor: cor }}
+            style={{ backgroundColor: coresPadrao[index] }}
             onClick={() => podeAdicionarMais && onAdicionarInput(cor)}
             disabled={!podeAdicionarMais} // Desativa o botão se não puder adicionar mais
           >

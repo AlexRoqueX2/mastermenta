@@ -26,7 +26,7 @@ const Configuracao: React.FC<ConfiguracaoProps> = ({ onConfigurar }) => {
             value={numCores}
             onChange={(e) => setNumCores(Number(e.target.value))}
             min={2}
-            max={10}
+            max={6}
             required
           />
         </div>

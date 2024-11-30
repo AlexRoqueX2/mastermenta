@@ -8,14 +8,9 @@ import Home from "./componentes/compHomePage/hellcome";
 import Main from "./componentes/main/main";
 import ForgotPassword from "./componentes/compHomePage/esqueciSenha";
 import Configuration from "./componentes/configuration/configuration";
+import MainGame from "./componentes/compMasterMenta/mainGame";
 
 const App: React.FC = () => {
-  const [config, setConfig] = useState<{ numCores: number; numLinhas: number; numTentativas: number } | null>(null);
-
-  const handleConfigurar = (novaConfig: { numCores: number; numLinhas: number; numTentativas: number }) => {
-    setConfig(novaConfig);
-  };
-
   return (
     <Router>
       <Routes>
@@ -25,6 +20,7 @@ const App: React.FC = () => {
         <Route path="/home" element={<Home />} />
         <Route path="/inicio" element={<Main />} />
         <Route path="/configuracao" element={<Configuration />} />
+        <Route path="/mainJogo" element={<MainGame />} />
       </Routes>
     </Router>
   );

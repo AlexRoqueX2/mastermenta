@@ -16,6 +16,40 @@ const Configuration: React.FC = () => {
     setIsButtonDisabled(!(username && password));
   }, [username, password]);
 
+  const handleDeletar = async (event: React.FormEvent) => {
+    event.preventDefault();
+
+    setMessage(null);
+    try {
+      const response = await axios.delete<any>(
+        `http://localhost:8000/user/${JSON.parse(localStorage.getItem('user') || '{}')._id}`,
+        {
+          headers: {
+            Authorization: localStorage.getItem('authToken'),
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        const user = response.data.data;
+        localStorage.setItem('user', JSON.stringify(user));
+
+        setMessage('conta deletada com sucesso , voce sera redirecionado ');
+        setPassword('');
+        setUsername('');
+        setTimeout(() => {
+          navigate('/inicio');
+        }, 2000);
+      }
+
+    } catch (error: any) {
+      console.log(error);
+      
+      const errorMessage = error.response?.data?.message || 'Erro no delete.';
+      setMessage(errorMessage);
+    }
+  };
+
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
 
@@ -43,7 +77,7 @@ const Configuration: React.FC = () => {
         setPassword('');
         setUsername('');
         setTimeout(() => {
-          navigate('/inicio');
+          navigate('/');
         }, 2000);
       }
 
@@ -80,7 +114,10 @@ const Configuration: React.FC = () => {
           />
         </div>
         <button type="submit" disabled={isButtonDisabled}>
-          Entrar
+          mudar
+        </button>
+        <button onClick={handleDeletar}>
+          deletar conta
         </button>
       </form>
       {message && <p className="message">{message}</p>}
