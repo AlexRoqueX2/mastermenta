@@ -1,0 +1,11 @@
+    <div>
+      {config ? (
+        <Mastermind
+          numCores={config.numCores}
+          numLinhas={config.numLinhas}
+          numTentativas={config.numTentativas}
+        />
+      ) : (
+        <Configuracao onConfigurar={handleConfigurar} />
+      )} */
+    </div>

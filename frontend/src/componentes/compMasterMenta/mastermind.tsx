@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import './mastermind.css';
-import { obterCores, gerarSenhaAleatoria } from "../utils/logicaCores";
+import { obterCores, gerarSenhaAleatoria } from "../../utils/logicaCores";
 import BotoesControle from "./BotoesControle";
 import { server } from "typescript";
-import { compararInput, checaVitoria } from "../utils/logicaComparacao";
+import { compararInput, checaVitoria } from "../../utils/logicaComparacao";
 
 interface MastermindProps {
   numCores: number;

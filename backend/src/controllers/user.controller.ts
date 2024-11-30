@@ -4,6 +4,7 @@ import User from '../model/user.model';
 const crypto = require("crypto-js");
 const jwt = require("jsonwebtoken");
 
+
 export const getAllUsers = async (req: Request, res: Response) => {
     if (!isUserAuthenticated(req.headers['authorization'])) {
         res.status(401).json(buildErrorResponse('Usuario não autenticado'));
@@ -202,7 +203,7 @@ export const loginUser = async (req: any, res: any) => {
             res.status(200).json({
                 status: 'success',
                 message: 'Usuário logado com sucesso',
-                data: { token },
+                data: { "token": token },
             });
         });
 
