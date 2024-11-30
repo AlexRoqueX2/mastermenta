@@ -32,6 +32,7 @@ export const getAllUsers = async (req: Request, res: Response) => {
 export const getUsers = async (req: any, res: any) => {
     if (!isUserAuthenticated(req.headers['authorization'])) {
         res.status(401).json(buildErrorResponse('Usuario não autenticado'));
+        return;
     }
 
     try {
@@ -102,6 +103,7 @@ export const createUser = async (req: any, res: any) => {
 };
 
 export const updateUser = async (req: any, res: any) => {
+    console.log(req.headers['authorization']);
     if (!isUserAuthenticated(req.headers['authorization'])) {
         res.status(401).json(buildErrorResponse('Usuario não autenticado'));
         return;
@@ -137,10 +139,16 @@ export const updateUser = async (req: any, res: any) => {
             return;
         }
 
+        const updatedUserWithoutPassword = {
+            email: updatedUser.email,
+            username: updatedUser.username,
+            _id: updatedUser._id,
+        }
+
         res.status(200).json({
             status: 'success',
             message: 'Usuário atualizado com sucesso',
-            data: updatedUser,
+            data: updatedUserWithoutPassword,
         });
     } catch (error) {
         res.status(400).json(buildErrorResponse('Erro ao atualizar usuário', error));
@@ -203,7 +211,10 @@ export const loginUser = async (req: any, res: any) => {
             res.status(200).json({
                 status: 'success',
                 message: 'Usuário logado com sucesso',
-                data: { "token": token },
+                data: { 
+                    token,
+                    user
+                },
             });
         });
 
@@ -219,7 +230,7 @@ function isUserAuthenticated(token?: string) {
 
     let authenticated = null;
     jwt.verify(token, 'chave', (err: any) => {
-        authenticated = err === null ? false : true
+        authenticated = err === null ? true : false;
     });
     
     return authenticated;

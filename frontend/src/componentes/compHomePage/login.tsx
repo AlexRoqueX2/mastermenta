@@ -3,12 +3,6 @@ import './login.css';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
-interface LoginResponse {
-  data: {
-    token: string;
-  };
-}
-
 const Login: React.FC = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState<string>('');
@@ -26,26 +20,24 @@ const Login: React.FC = () => {
     event.preventDefault();
     setMessage(null); // Reseta a mensagem antes de enviar
     try {
-      const response = await axios.post<LoginResponse>('http://localhost:8000/user/login',
-      {
-        "email": email,
-        "password": password,
-      });
+      const response = await axios.post<any>('http://localhost:8000/user/login',
+        {
+          "email": email,
+          "password": password,
+        });
 
       if (response.status === 200) {
-        const token = response.data.data.token; // Pegue o token do corpo da resposta
-        console.log("Token recebido:", token);
-  
-        // Salve o token no Local Storage
+        const token = response.data.data.token;
+        const user = response.data.data.user;
+
         localStorage.setItem('authToken', token);
+        localStorage.setItem('user', JSON.stringify(user));
         setMessage('login realizado com sucesso!');
         setEmail('');
         setPassword('');
-        navigate('/home')
-        
+        navigate('/inicio')
       }
 
-      
     } catch (error: any) {
       const errorMessage = error.response?.data?.message || 'Erro no login.';
       setMessage(errorMessage);
